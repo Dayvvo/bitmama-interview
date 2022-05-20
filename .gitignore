@@ -1,0 +1,12 @@
+node_modules
+build
+.next
+*.env.json
+out/
+.husky/
+artifacts/
+cache/
+typechain/
+.lab/
+.DS_store
+.env
