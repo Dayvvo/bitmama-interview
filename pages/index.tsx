@@ -1,14 +1,10 @@
 import type { NextPage } from 'next'
-import Navbar from '../screens/sections/nav';
-import Hero from '../screens/sections/hero'
-import Footer from '../screens/sections/footer';
+import Login from '../screens/auth/login'
 
 const Home: NextPage = () => {
   return (
     <>
-      <Navbar/>
-      <Hero/>
-      <Footer/>
+      <Login/>
     </>
 
   )
