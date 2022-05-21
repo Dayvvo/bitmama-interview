@@ -4,7 +4,7 @@ import Header from "../../components/Header"
 import ChakraText from "../../components/Text"
 import ChakraButton from "../../components/ChakraButton"
 import Router from 'next/router'
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 const Login = ()=>{
 

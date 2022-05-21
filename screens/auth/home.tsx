@@ -1,22 +1,20 @@
-import { Box, Center, Flex,  Input, Text } from "@chakra-ui/react"
+import { Box, Center, Flex, Text } from "@chakra-ui/react"
 import useStylesHook from "../../hooks/useStyles"
 import Header from "../../components/Header"
-import ChakraText from "../../components/Text"
-import ChakraButton from "../../components/ChakraButton"
 import { useEffect, useRef, useState } from "react"
 import moment from "moment"
-import useIsAuth from "../../hooks/useIsAuth"
 
 const Home = ()=>{
 
     const styles = useStylesHook();
 
-    const [loading,setLoading] = useState(false);
 
     let timeOutRef = useRef<any>(null);
 
     const [usersPayload,setusersPayload] = useState([])
 
+
+    console.log(' set user payload',setusersPayload);
 
     useEffect(()=>{
         document.addEventListener('visibilitychange',()=>{
