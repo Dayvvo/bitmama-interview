@@ -12,7 +12,7 @@ const Login = ()=>{
 
     
 
-    const [state,setState]= useState({
+    const [state,setState]= useState<any>({
         name:'',
         tier:'one',
         amount:'',
