@@ -34,6 +34,14 @@ const Login = ()=>{
 
     console.log('change',state.name,state.amount,errors)
 
+    const triggerLogin = (errorCount:number)=>{
+        if(!errorCount){
+            localStorage.setItem('payload',JSON.stringify({name:state.name,tier:state.tier,amount:state.amount  })  )
+            Router.push('/home')
+        }
+    
+    }
+
     const submitLogin = ()=>{
         let errorcount = 0
         for (const key in state) {
@@ -51,14 +59,12 @@ const Login = ()=>{
         }
 
         for (const key in errors) {
-            if (errors[key] ===''  ) {
-               errorcount+=1; 
+            if (errors[key] !==''  ) {
+               errorcount= errorcount+1; 
             }
         }
 
-            localStorage.setItem('payload',JSON.stringify({name:state.name,tier:state.tier,amount:state.amount  })  )
-
-            Router.push('/home')
+        triggerLogin(errorcount)
 
     }
 

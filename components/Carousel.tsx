@@ -1,4 +1,3 @@
-import Slider from "react-slick";
 import {BsChevronRight,BsChevronLeft} from 'react-icons/bs'
 import { Box } from "@chakra-ui/react";
 
@@ -17,9 +16,7 @@ const Carousel=({children,arrows}:{children:any,arrows?:boolean})=>{
 
 
     return (
-        <Slider {...settings}>
-          {children}
-        </Slider>
+      <></>
     );
 }
 
