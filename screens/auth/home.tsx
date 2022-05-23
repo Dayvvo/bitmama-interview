@@ -176,48 +176,61 @@ const Home = ()=>{
 
     return(
         <>
-            <Modal isOpen={isOpen} isCentered onClose={onClose}>
-    
-                <ModalOverlay />
-    
-                <ModalContent py='2em'>
-                    <ModalHeader>Sessions</ModalHeader>
-                    <ModalBody>
+                    <Box p='1.3em' borderRadius={'10px'} position='fixed' bg={'white'} top={'10px'} right={'10px'}>
+                        <Flex align='center' > 
+
+                            <Box minW={'130px'}>
+                                <Text fontWeight={700} fontSize={'17px'}> Username </Text>
+                            </Box>
+                            <Box ml='1.5em' minW={'90px'}>
+                                <Text fontWeight={700} fontSize={'17px'}> Status </Text>
+                            </Box>
+
+
+
+                        </Flex>
+
+
                         {usersPayload.map((payload,index)=>
                         {
                             let diff =moment().diff(payload?.last_seen,'seconds')
 
-                            return<Flex align='center' key={index}> 
-                            <Box>
-                                <Text fontSize={'14px'}> Username </Text>
-                                <Text  fontSize={'20px'}>{returnCapitalizeString(payload?.username)} </Text>
-                            </Box>
-                            <Box ml='1.5em'>
-                                <Text fontSize={'14px'}> Status </Text>
-                                <Text fontSize={'20px'} > 
-                                    {diff >60  && index  && payload?.username !==currentUsername.current 
-                                     ?'Idle': 'Active'   
-                                    } 
-                                </Text>
-                            </Box>
+                            return(
+                            <Flex mt={index?'1em':index} align='center' key={index}> 
 
-                            <ChakraButton ml={'2em'} onClick={()=>{
-                                logoutorSwitch(false,index)
-                                index && setusersPayload(usersPayload.filter(item=> item.username !== payload?.username ))    
-                            }} btnSize='small' btnVariant='primary1'>Logout</ChakraButton>
+                                <Box minW={'130px'}>
+                                    <Flex align='center'>
+                                        <Text  fontSize={'17px'}>
+                                            {returnCapitalizeString(payload?.username)} 
+                                        </Text>
+                                        <Text ml='0.3em' color='green' fontWeight={'600'} fontSize={'14px'}>
+                                            {payload?.username===currentUsername.current?'(Signed in)':'' } 
+                                        </Text>
+                                    </Flex>
+    
+                                </Box>
+                                <Box ml='1.5em' minW={'90px'}>
+                                    <Text fontSize={'17px'} > 
+                                        {diff >60  && index  && payload?.username !==currentUsername.current 
+                                        ?'Idle': 'Active'   
+                                        } 
+                                    </Text>
+                                </Box>
+
+                                <ChakraButton ml={'2em'} onClick={()=>{
+                                    logoutorSwitch(false,index)
+                                    index && setusersPayload(usersPayload.filter(item=> item.username !== payload?.username ))    
+                                }} btnSize='small' btnVariant='primary1'>Logout</ChakraButton>
 
 
-                        </Flex>
-                        }
+                            </Flex>
+                        )}
                         
                         )}
 
-                    </ModalBody>
+                    </Box>
 
-                </ModalContent>
-    
-            </Modal>
-
+ 
 
             <Flex onClick={onOpen} minH='100vh' align='center' p='1em' justifyContent={'center'}  
              bg='url("/assets/image 31.png")' bgSize={'cover'} flexGrow={1}  >
