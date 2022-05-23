@@ -1,72 +1,54 @@
-import { Box, Center, Flex,  Input, Select, Text } from "@chakra-ui/react"
+import { Box, Center, Flex,  Input, Text } from "@chakra-ui/react"
 import useStylesHook from "../../hooks/useStyles"
 import Header from "../../components/Header"
 import ChakraText from "../../components/Text"
 import ChakraButton from "../../components/ChakraButton"
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import { useState } from "react"
+import moment from 'moment';
+import useIsAuth from "../../hooks/useIsAuth"
 
 const Login = ()=>{
 
     const styles = useStylesHook();
 
-    
+    const {query}= useRouter();
 
-    const [state,setState]= useState<any>({
-        name:'',
-        tier:'one',
-        amount:'',
+
+    !query?.shouldRedirect && useIsAuth();
+
+    const [state,setState]= useState({
+        userName:'',
+        error:''
     });
 
-    const tierValues  ={
-        'one': 10000,
-        'two':20000,
-        'three':30000
-    }
-
-
-    const [errors,setErrors] = useState({
-        name:'',
-        amount:'',
-        tier:''
-    })
-
-
-    console.log('change',state.name,state.amount,errors)
-
-    const triggerLogin = (errorCount:number)=>{
-        if(!errorCount){
-            localStorage.setItem('payload',JSON.stringify({name:state.name,tier:state.tier,amount:state.amount  })  )
-            Router.push('/home')
-        }
     
-    }
 
     const submitLogin = ()=>{
-        let errorcount = 0
-        for (const key in state) {
 
-            if (state[key]===''){ 
-                setErrors({...errors, [key]:'This value is required' })
-            }
-            
-            if (state.amount !==tierValues[state.tier] ) {
-                setErrors({...errors,amount:`Members in tier one must pay an amount of ${tierValues[state.tier]}`  })
-            }
-
-        
-            
+        if (!state.userName) {
+            setState({...state,error:'This field is required'})
         }
+        else if( state.userName.split(' ').length > 1 )             
+            setState({...state,error:'Username must be a single word/phrase'})
 
-        for (const key in errors) {
-            if (errors[key] !==''  ) {
-               errorcount= errorcount+1; 
-            }
+        else{
+            let bitMama = localStorage.getItem('bitmama-logs')
+             localStorage.setItem('bitmama-logs',JSON.stringify({
+                ...JSON.parse(bitMama),
+                [state.userName.toLowerCase()]:{ last_seen: moment(),lastSeenInSeconds:moment.now() }
+             })
+            )
+            Router.push('/home');
+
+
+
+   
         }
-
-        triggerLogin(errorcount)
 
     }
+
+    
 
     return(
 
@@ -92,53 +74,18 @@ const Login = ()=>{
                         <Flex w={{base:'full',lg:'unset'}} direction={'column'}>
 
                             <ChakraText weight={700} fontWeight={700}  color={styles.neut600} >
-                               Name
+                                Username 
                             </ChakraText>
 
-                            <Input type='text' onChange={e=>setState({...state,name:e.target.value})} 
-                             onFocus={()=>setErrors({...errors,name:''})} value={state.name} mt='0.5em' 
-                             p='1.6em' w={{base:'280px',lg:'340px'}} 
-                             placeholder="Enter your name" 
-                            />
-
-                            <Text color='red' fontSize={'13px'} mt='1em'>
-                                {errors.name || ''} 
-                            </Text>
-
-
-
-                            <ChakraText mt='1em' weight={700} fontWeight={700}  color={styles.neut600} >
-                               Tier
-                            </ChakraText>
-
-                            <Select  onChange={e=>{
-                                setState({...state,tier:e.target.value});
-                                setErrors({...errors,tier:''})
-                                }}>
-                                <option value='one'>One</option>
-                                <option value='two'>Two</option>
-                                <option value='three'>Three</option>
-                            </Select>
-
-                            <Text color='red' fontSize={'13px'} mt='1em'>
-                                {errors.tier || ''} 
-                            </Text>
-
-
-                            <ChakraText mt='1em' weight={700} fontWeight={700}  color={styles.neut600} >
-                               Amount
-                            </ChakraText>
-
-                            <Input type='number' onChange={e=>setState({...state,amount:parseInt(e.target.value)})} 
-                             onFocus={()=>setErrors({...errors,amount:''})} value={state.amount} mt='0.5em' 
+                            <Input onChange={e=>setState({...state,userName:e.target.value})} 
+                             onFocus={()=>setState({...state,error:''})} value={state.userName} mt='0.5em' 
                              p='1.6em' w={{base:'280px',lg:'340px'}} 
                              placeholder="Enter your username" 
                             />
 
                             <Text color='red' fontSize={'13px'} mt='1em'>
-                                {errors.amount || ''} 
+                                {state.error || ''} 
                             </Text>
-
 
                             <ChakraButton onClick={submitLogin} maxW={{sm:'280px',lg:'340px'}} 
                              btnVariant='primary1'  mt='1.5em' 
