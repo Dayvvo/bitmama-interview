@@ -27,17 +27,34 @@ const Home = ()=>{
     const timeOutRef = useRef<any>(null);
 
     const onVisibilityChange= ()=>{
-        setShouldCheckAuth(prev=> prev===undefined?false: !prev);
         if (timeOutRef.current !==null && document.visibilityState==='visible') {
-            console.log('cancelled');
             clearTimeout(timeOutRef.current);
-            timeOutRef.current=null
+            timeOutRef.current=null;
+            let bitmamaLogs = JSON.parse(localStorage.getItem('bitmama-logs'));
+            
+            // log user as active when user account is refocused
+            if (bitmamaLogs[currentUsername.current]) {
+
+                localStorage.setItem('bitmama-logs',JSON.stringify({...bitmamaLogs,
+                    [currentUsername.current]:{ 
+                        last_seen:moment(),
+                        lastSeenInSeconds: moment.now()
+                    }  
+                }))
+            }
+
+            else{
+                console.log('username',currentUsername.current,'not present')
+            }
         }
          
         if (document.visibilityState==='hidden') {
             const lastSeen = moment();
             const lastSeenInSeconds= moment.now();
-        
+            
+
+
+            // log user as idle when tab is unfocused for 60 seconds
             timeOutRef.current=
             setTimeout(() => {
                 let bitmamaLogs = JSON.parse(localStorage.getItem('bitmama-logs'));
@@ -48,9 +65,10 @@ const Home = ()=>{
                     }  
                 }))
 
-            }, 30000);
+            }, 60000);
 
         }
+        setShouldCheckAuth(prev=> prev===undefined?false: !prev);
          
     }
 
@@ -63,7 +81,7 @@ const Home = ()=>{
 
     const setUsersPayloadref = useRef<any>(setusersPayload)
 
-
+    // ensure user doesn't need to log in on browser refresh
     useIsAuth()
 
     useEffect(()=>{
@@ -75,9 +93,11 @@ const Home = ()=>{
 
     useEffect(()=>{
 
+        let token = JSON.parse( localStorage.getItem('bitmama-logs'));
+
+        // point tab to  last active session log
         const sortUsers=()=>{
             let userTokenArr = [];
-            let token = JSON.parse( localStorage.getItem('bitmama-logs'));
 
             for (const key in token) {
                 userTokenArr.push({ 
@@ -87,21 +107,31 @@ const Home = ()=>{
             });
             }
             let sortedArr = userTokenArr.sort((a,b)=>b?.lastSeenInSeconds-a?.lastSeenInSeconds)
-            setUsersPayloadref.current(sortedArr);
 
-            console.log('sorted Arr',sortedArr)
-            currentUsername.current= (sortedArr[0].username);
+            let currentUserIndex = sortedArr.findIndex(index=>index.username  ===currentUsername.current )
+
+            const finalSortedArr = [...currentUserIndex>=0?[sortedArr[currentUserIndex]]:[],
+            ...sortedArr.filter(entry=>entry?.username!== currentUsername.current) ]
+
+            setUsersPayloadref.current(finalSortedArr);
+
+            console.log('sorted Arr',finalSortedArr)
+            currentUsername.current= (finalSortedArr[0].username);
             setPayloadPopulated(true);
         }
 
-        sortUsers();
+        //prevent account switching when user is logged out from another tab
+        (!currentUsername.current || (currentUsername.current &&  token[currentUsername.current] )  ) 
+        
+        && sortUsers();
     
-    },[])
+    },[shouldCheckAuth])
     
     
     useEffect(()=>{
         let bitmamaLogs = JSON.parse(localStorage.getItem('bitmama-logs'));
 
+        //trigger logout when account is logged out from another session tab
         !bitmamaLogs[currentUsername.current] && shouldCheckAuth !==undefined  && Router.push({
             pathname:'/', 
             query:{shouldRedirect:'false'}
@@ -139,7 +169,7 @@ const Home = ()=>{
         }
     }
 
-
+    // ensure case insensitivity for usernames
     const returnCapitalizeString = (input:string)=> input?.charAt(0)?.toUpperCase()+ input?.substring(1,input.length)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -165,7 +195,9 @@ const Home = ()=>{
                             <Box ml='1.5em'>
                                 <Text fontSize={'14px'}> Status </Text>
                                 <Text fontSize={'20px'} > 
-                                    {diff >30  && index ?'Idle': 'Active'   } 
+                                    {diff >60  && index  && payload?.username !==currentUsername.current 
+                                     ?'Idle': 'Active'   
+                                    } 
                                 </Text>
                             </Box>
 
